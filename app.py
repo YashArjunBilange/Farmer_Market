@@ -19,6 +19,13 @@ def fetch_from_datagov(params):
     resp = requests.get(BASE_URL, params=params, timeout=20)
     resp.raise_for_status()
     return resp.json()
+    
+@app.route("/")
+def home():
+    return {
+        "message": "✅ Farmer Market API is live on Railway!",
+        "usage": "Try /prices?state=Maharashtra&commodity=Onion"
+    }
 
 @app.route("/prices")
 def prices():

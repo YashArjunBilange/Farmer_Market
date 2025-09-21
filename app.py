@@ -11,15 +11,20 @@ DATA_GOV_KEY = os.environ.get("DATA_GOV_API_KEY")
 RESOURCE_ID = "35985678-0d79-46b4-9ed6-6f13308a1d24"  # replace with actual resource id
 BASE_URL = f"https://api.data.gov.in/resource/{RESOURCE_ID}"
 
-cache = TTLCache(maxsize=200, ttl=60*15)  # 15 minutes
+# Cache: 15 minutes TTL
+cache = TTLCache(maxsize=200, ttl=60*15)
 
-@cached(cache)
+# Helper to convert dict to hashable tuple for caching
+def dict_to_tuple(d):
+    return tuple(sorted(d.items()))
+
+@cached(cache, key=lambda params: dict_to_tuple(params))
 def fetch_from_datagov(params):
-    params.update({"api-key": DATA_GOV_KEY or "DEMO_KEY", "format": "json", "limit": 5000})
+    params.update({"api-key": DATA_GOV_KEY, "format": "json", "limit": 5000})
     resp = requests.get(BASE_URL, params=params, timeout=20)
     resp.raise_for_status()
     return resp.json()
-    
+
 @app.route("/")
 def home():
     return {

@@ -3,10 +3,6 @@ from cachetools import TTLCache, cached
 import requests
 from flask_cors import CORS
 import os
-os.environ["DATA_GOV_API_KEY"] = "579b464db66ec23bdd000001332c36f024f34bb07cb98b5cc6e8fdd9"
-
-PORT = int(os.environ.get("PORT", 8000))
-
 
 app = Flask(__name__)
 CORS(app)

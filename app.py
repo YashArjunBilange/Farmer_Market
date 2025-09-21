@@ -34,18 +34,23 @@ def home():
 
 @app.route("/prices")
 def prices():
-    state = request.args.get("state")
     params = {}
+
+    state = request.args.get("state")
     if state:
         params["filters[State]"] = state.title()
-    
+
     commodity = request.args.get("commodity")
     if commodity:
         params["filters[Commodity]"] = commodity.title()
-    
+
     market = request.args.get("market")
     if market:
         params["filters[Market]"] = market.title()
+
+    arrival_date = request.args.get("arrival_date")
+    if arrival_date:
+        params["filters[Arrival_Date]"] = arrival_date
 
     try:
         data = fetch_from_datagov(params)
@@ -72,4 +77,5 @@ def prices():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 

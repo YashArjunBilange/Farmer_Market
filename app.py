@@ -34,28 +34,42 @@ def home():
 
 @app.route("/prices")
 def prices():
-    state = request.args.get("state", "Maharashtra")
-    params = {"filters[state]": state}
-    if request.args.get("commodity"):
-        params["filters[commodity]"] = request.args.get("commodity")
-    if request.args.get("market"):
-        params["filters[market]"] = request.args.get("market")
+    state = request.args.get("state")
+    params = {}
+    if state:
+        params["filters[State]"] = state.title()
+    
+    commodity = request.args.get("commodity")
+    if commodity:
+        params["filters[Commodity]"] = commodity.title()
+    
+    market = request.args.get("market")
+    if market:
+        params["filters[Market]"] = market.title()
+
     try:
         data = fetch_from_datagov(params)
         records = data.get("records", [])
         normalized = []
+
         for r in records:
             normalized.append({
-                "state": r.get("State") or r.get("state"),
-                "district": r.get("District") or r.get("district"),
-                "market": r.get("Market") or r.get("market"),
-                "commodity": r.get("Commodity") or r.get("commodity"),
-                "variety": r.get("Variety") or r.get("variety"),
-                "arrival_date": r.get("Arrival_Date") or r.get("arrival_date"),
-                "min_price": r.get("Min_x0020_Price") or r.get("Min Price") or r.get("min_price"),
-                "max_price": r.get("Max_x0020_Price") or r.get("max_price"),
-                "modal_price": r.get("Modal_Price") or r.get("modal_price"),
+                "state": r.get("State"),
+                "district": r.get("District"),
+                "market": r.get("Market"),
+                "commodity": r.get("Commodity"),
+                "variety": r.get("Variety"),
+                "arrival_date": r.get("Arrival_Date"),
+                "min_price": r.get("Min_Price"),
+                "max_price": r.get("Max_Price"),
+                "modal_price": r.get("Modal_Price"),
             })
+
+        if not normalized:
+            return jsonify({"message": "No records found for these filters.", "records": []})
+
         return jsonify({"records": normalized})
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
